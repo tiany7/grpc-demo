@@ -3,6 +3,8 @@ syntax = "proto3";
 
 service Adder {
   rpc AddTwoNumbers (AddTwoNumbersRequest) returns (AddTwoNumbersReply) {}
+  rpc AddManyNumbers (AddManyNumbersRequest) returns (AddManyNumbersReply) {}
+  rpc AddTwoNumbersByStream (stream AddTwoNumbersByStreamRequest) returns (AddTwoNumbersByStreamReply) {}
 }
 
 message AddTwoNumbersRequest {
@@ -11,5 +13,24 @@ message AddTwoNumbersRequest {
 }
 
 message AddTwoNumbersReply {
+  int32 result = 1;
+}
+
+
+
+message AddManyNumbersRequest {
+  repeated int32 numbers = 1;
+}
+
+message AddManyNumbersReply {
+  int32 result = 1;
+}
+
+
+message AddTwoNumbersByStreamRequest {
+  int32 number = 1;
+}
+
+message AddTwoNumbersByStreamReply {
   int32 result = 1;
 }

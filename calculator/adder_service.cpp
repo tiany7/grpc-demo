@@ -20,7 +20,6 @@ using grpc::ServerContext;
 using grpc::Status;
 
 
-// Logic and data behind the server's behavior.
 class AdderServiceImpl final : public Adder::Service {
     Status AddTwoNumbers(ServerContext* context, const AddTwoNumbersRequest* request,
                          AddTwoNumbersReply* reply) override {
@@ -28,6 +27,26 @@ class AdderServiceImpl final : public Adder::Service {
         int b = request->b();
         int sum = a + b;
         reply->set_result(sum);
+        return Status::OK;
+    }
+
+    Status AddManyNumbers(ServerContext* context, const AddManyNumbersRequest* request,
+                          AddManyNumbersReply* reply) override {
+        int sum = 0;
+        for (int number : request->numbers()) {
+            sum += number;
+        }
+        reply->set_result(sum);
+        return Status::OK;
+    }
+    
+    Status AddTwoNumbersByStream(ServerContext* context, grpc::ServerReader<AddTwoNumbersByStreamRequest>* reader, AddTwoNumbersByStreamReply* response) override {
+        int result = 0;
+        AddTwoNumbersByStreamRequest request;
+        while (reader->Read(&request)) {
+            result += request.number();
+        }
+        response->set_result(result);
         return Status::OK;
     }
 };
@@ -39,17 +58,11 @@ void RunServer() {
     grpc::EnableDefaultHealthCheckService(true);
     grpc::reflection::InitProtoReflectionServerBuilderPlugin();
     ServerBuilder builder;
-    // Listen on the given address without any authentication mechanism.
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-    // Register "service" as the instance through which we'll communicate with
-    // clients. In this case it corresponds to an *synchronous* service.
     builder.RegisterService(&service);
-    // Finally assemble the server.
     std::unique_ptr<Server> server(builder.BuildAndStart());
     std::cout << "Server listening on " << server_address << std::endl;
 
-    // Wait for the server to shutdown. Note that some other thread must be
-    // responsible for shutting down the server for this call to ever return.
     server->Wait();
 }
 

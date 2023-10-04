@@ -33,13 +33,35 @@ public:
         Status status = stub_->AddTwoNumbers(&context, request, &reply);
 
         if (status.ok()) {
-            return reply.result(); //返回结果
+            return reply.result(); //return the result
         } else {
             std::cout << status.error_code() << ": " << status.error_message()
                       << std::endl;
             return -1;
         }
     }
+
+    int AddManyNumbers(const std::vector<int>& numbers) {
+        AddManyNumbersRequest request;
+        for (auto number : numbers) {
+            request.add_numbers(number);
+        }
+
+        AddManyNumbersReply reply;
+
+        ClientContext context;
+
+        Status status = stub_->AddManyNumbers(&context, request, &reply);
+
+        if (status.ok()) {
+            return reply.result(); 
+        } else {
+            std::cout << status.error_code() << ": " << status.error_message()
+                      << std::endl;
+            return -1;
+        }
+    }
+
 
 private:
     std::unique_ptr<Adder::Stub> stub_;
